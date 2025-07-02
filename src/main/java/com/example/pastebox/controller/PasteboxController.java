@@ -35,11 +35,6 @@ public class PasteboxController {
         return ResponseEntity.ok(pasteboxService.getForUrl(url));
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<List<PasteboxResponseDto>> getAllPublicPastebox(){
-        return ResponseEntity.ok(pasteboxService.getAllPublic());
-    }
-
     @GetMapping("/page")
     public ResponseEntity<Page<PasteboxResponseDto>> getPasteboxPage(@RequestParam(defaultValue = "0") int page,
                                                                      @RequestParam(defaultValue = "10") int size){
@@ -51,10 +46,7 @@ public class PasteboxController {
     public ResponseEntity<List<PasteboxResponseDto>> findAll(){
         return ResponseEntity.ok(pasteboxService.getAll());
     }
-    @GetMapping("/dmitriy")
-    public ResponseEntity<List<PasteboxResponseDto>> getPasteboxesContainsDmitriy(){
-        return ResponseEntity.ok(pasteboxService.containsDmitriy());
-    }
+
     @ExceptionHandler({InvalidPasteboxStatusException.class, NoSuchPasteboxException.class})
     public ResponseEntity<AppErrorResponse> handleInvalidPastebocStatus(Exception e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AppErrorResponse(e.getMessage()));

@@ -18,5 +18,4 @@ public interface PasteboxService {
 
     Page<PasteboxResponseDto> getAllPublic(Pageable pageable);
 
-    List<PasteboxResponseDto> containsDmitriy();
 }

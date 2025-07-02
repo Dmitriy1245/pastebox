@@ -63,11 +63,4 @@ public class PasteboxServiceImpl implements PasteboxService{
         return pasteboxRepository.findAll(pageable).map(entityMapper::mapPasteboxToPasteboxResponseDto);
     }
 
-    @Override
-    public List<PasteboxResponseDto> containsDmitriy() {
-        return pasteboxRepository.containsDmitriy().stream().map(
-                entityMapper::mapPasteboxToPasteboxResponseDto).toList();
-    }
-
-
 }
