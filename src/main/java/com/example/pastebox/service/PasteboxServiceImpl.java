@@ -29,8 +29,8 @@ public class PasteboxServiceImpl implements PasteboxService{
     @Override
     public PasteboxResponseDto createPastebox(PasteboxRequestDto dto) {
         Pastebox pastebox = entityMapper.mapPasteboxDtoToPastebox(dto);
-        pasteboxRepository.save(pastebox);
-        pastebox.setHash(Integer.toHexString(pastebox.hashCode()));
+        pastebox = pasteboxRepository.save(pastebox);
+        pastebox.setHash(Integer.toHexString(pastebox.hashCode())+pastebox.getId());
         return entityMapper.mapPasteboxToPasteboxResponseDto(pasteboxRepository.save(pastebox));
     }
 

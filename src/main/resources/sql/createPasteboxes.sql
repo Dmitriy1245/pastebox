@@ -6,3 +6,6 @@ CREATE TABLE pasteboxes(
                            EXPIRES_AT timestamp,
                            HASH varchar
 );
+
+ALTER TABLE pasteboxes
+    ADD COLUMN user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE;
