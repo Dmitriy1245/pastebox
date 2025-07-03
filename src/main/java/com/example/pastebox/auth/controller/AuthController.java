@@ -7,6 +7,8 @@ import com.example.pastebox.auth.dto.UserCreatedResponseDto;
 import com.example.pastebox.auth.dto.UserRegisterDto;
 import com.example.pastebox.auth.service.AuthService;
 import com.example.pastebox.auth.service.UserService;
+import com.example.pastebox.auth.util.error.exception.EmailAlreadyExistsExcpetion;
+import com.example.pastebox.auth.util.error.exception.UsernameAlreadyExistsExcpetion;
 import com.example.pastebox.auth.util.error.response.AuthError;
 import com.example.pastebox.auth.util.jwt.JwtTokenUtils;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,4 +49,10 @@ public class AuthController {
     public UserCreatedResponseDto createNewUser(@RequestBody UserRegisterDto userRegisterDto){
         return authService.createNewUser(userRegisterDto);
     }
+
+    @ExceptionHandler({EmailAlreadyExistsExcpetion.class, UsernameAlreadyExistsExcpetion.class})
+    public ResponseEntity<AuthError> emailOrUsernameExceptionHandler(Exception e){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new AuthError(e.getMessage()));
+    }
+
 }

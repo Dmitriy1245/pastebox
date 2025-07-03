@@ -13,4 +13,5 @@ public class PasteboxResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime expiresAt; //Если null, то бессрочно
     private String hash;
+    private String author;
 }

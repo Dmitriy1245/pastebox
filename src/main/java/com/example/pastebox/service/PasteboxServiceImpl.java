@@ -1,5 +1,6 @@
 package com.example.pastebox.service;
 
+import com.example.pastebox.auth.repository.UserRepository;
 import com.example.pastebox.dto.PasteboxRequestDto;
 import com.example.pastebox.dto.PasteboxResponseDto;
 import com.example.pastebox.entity.Pastebox;
@@ -11,6 +12,7 @@ import com.example.pastebox.util.mapper.EntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,11 +26,13 @@ public class PasteboxServiceImpl implements PasteboxService{
 
     private final PasteboxRepository pasteboxRepository;
     private final EntityMapper entityMapper;
+    private final UserRepository userRepository;
 
     @Transactional
     @Override
-    public PasteboxResponseDto createPastebox(PasteboxRequestDto dto) {
+    public PasteboxResponseDto createPastebox(PasteboxRequestDto dto, String username) {
         Pastebox pastebox = entityMapper.mapPasteboxDtoToPastebox(dto);
+        pastebox.setUser(userRepository.findByUsername(username).get());
         pastebox = pasteboxRepository.save(pastebox);
         pastebox.setHash(Integer.toHexString(pastebox.hashCode())+pastebox.getId());
         return entityMapper.mapPasteboxToPasteboxResponseDto(pasteboxRepository.save(pastebox));
@@ -61,6 +65,26 @@ public class PasteboxServiceImpl implements PasteboxService{
     @Override
     public Page<PasteboxResponseDto> getAllPublic(Pageable pageable) {
         return pasteboxRepository.findAll(pageable).map(entityMapper::mapPasteboxToPasteboxResponseDto);
+    }
+
+    @Override
+    public List<PasteboxResponseDto> getByUserUsername(String userUsername) {
+        return pasteboxRepository.getByUserUsername(userUsername).stream().map(entityMapper::mapPasteboxToPasteboxResponseDto).toList();
+    }
+
+    @Override
+    @Transactional
+    public void deletePasteboxByUser(String url, String username) {
+        Pastebox pastebox = pasteboxRepository.getByHash(url).orElseThrow(() -> new NoSuchPasteboxException("no pasteboxes with hash " + url));
+        if(!pastebox.getUser().getUsername().equals(username)) throw new AccessDeniedException("Пользователь не имеет доступа к ресурсу {"+url+"}");
+        pasteboxRepository.delete(pastebox);
+    }
+
+    @Override
+    @Transactional
+    public void deletePastebox(String url) { //для админов
+        Pastebox pastebox = pasteboxRepository.getByHash(url).orElseThrow(() -> new NoSuchPasteboxException("no pasteboxes with hash " + url));
+        pasteboxRepository.delete(pastebox);
     }
 
 }

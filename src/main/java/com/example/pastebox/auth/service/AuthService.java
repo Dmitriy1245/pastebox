@@ -2,12 +2,10 @@ package com.example.pastebox.auth.service;
 
 import com.example.pastebox.auth.dto.UserCreatedResponseDto;
 import com.example.pastebox.auth.dto.UserRegisterDto;
-import com.example.pastebox.auth.entity.Role;
 import com.example.pastebox.auth.entity.User;
 import com.example.pastebox.auth.util.error.exception.EmailAlreadyExistsExcpetion;
 import com.example.pastebox.auth.util.error.exception.UsernameAlreadyExistsExcpetion;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Hibernate;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,7 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service

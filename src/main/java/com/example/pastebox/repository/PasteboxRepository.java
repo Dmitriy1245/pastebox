@@ -3,7 +3,6 @@ package com.example.pastebox.repository;
 import com.example.pastebox.entity.Pastebox;
 import com.example.pastebox.entity.PasteboxStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,4 +14,7 @@ public interface PasteboxRepository extends JpaRepository<Pastebox,Long> {
 
     List<Pastebox> getByPasteboxStatus(PasteboxStatus pasteboxStatus);
 
+    List<Pastebox> getByUserUsername(String userUsername);
+
+    void deleteByHash(String hash);
 }

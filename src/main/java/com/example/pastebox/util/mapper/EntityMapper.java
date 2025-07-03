@@ -48,6 +48,7 @@ public class EntityMapper {
         pasteboxResponseDto.setCreatedAt(pastebox.getCreatedAt());
         pasteboxResponseDto.setExpiresAt(pastebox.getExpiresAt());
         pasteboxResponseDto.setHash(pastebox.getHash());
+        pasteboxResponseDto.setAuthor(pastebox.getUser().getUsername());
         return pasteboxResponseDto;
     }
     private boolean isValidPasteboxStatus(String status){

@@ -3,7 +3,6 @@ package com.example.pastebox.auth.service;
 import com.example.pastebox.auth.entity.User;
 import com.example.pastebox.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

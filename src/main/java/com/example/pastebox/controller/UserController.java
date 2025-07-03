@@ -15,20 +15,22 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-public class PasteboxController {
+public class UserController {
 
     private final PasteboxService pasteboxService;
 
     @PostMapping("/add")
-    public ResponseEntity<PasteboxResponseDto> addPastebox(@RequestBody PasteboxRequestDto pasteboxRequestDto){
-        return ResponseEntity.status(HttpStatus.CREATED).body(pasteboxService.createPastebox(pasteboxRequestDto));
+    public ResponseEntity<PasteboxResponseDto> addPastebox(@RequestBody PasteboxRequestDto pasteboxRequestDto, @AuthenticationPrincipal UserDetails userDetails){
+        String username = userDetails.getUsername();
+        return ResponseEntity.status(HttpStatus.CREATED).body(pasteboxService.createPastebox(pasteboxRequestDto, username));
     }
 
     @GetMapping("/{url}")
@@ -42,12 +44,17 @@ public class PasteboxController {
         Pageable pageable = PageRequest.of(page,size, Sort.by("createdAt").descending());
         return ResponseEntity.ok(pasteboxService.getAllPublic(pageable));
     }
-
-    @GetMapping("/admin/index")
-    public ResponseEntity<List<PasteboxResponseDto>> findAll(){
-        return ResponseEntity.ok(pasteboxService.getAll());
+    @GetMapping("/my-pasteboxes")
+    public ResponseEntity<List<PasteboxResponseDto>> usersPasteboxes(@AuthenticationPrincipal UserDetails userDetails){
+        String username = userDetails.getUsername();
+        return ResponseEntity.ok(pasteboxService.getByUserUsername(username));
     }
-
+    @DeleteMapping("/{url}")
+    public ResponseEntity<String> deletePastebox(@AuthenticationPrincipal UserDetails userDetails, @PathVariable String url){
+        String username = userDetails.getUsername();
+        pasteboxService.deletePasteboxByUser(url, username);
+        return ResponseEntity.ok("Pastebox {"+url+"} deleted successfully");
+    }
     @ExceptionHandler({InvalidPasteboxStatusException.class, NoSuchPasteboxException.class})
     public ResponseEntity<AppErrorResponse> handleInvalidPastebocStatus(Exception e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AppErrorResponse(e.getMessage()));

@@ -1,5 +1,6 @@
 package com.example.pastebox.auth.config;
 
+import com.example.pastebox.auth.service.AuthService;
 import com.example.pastebox.auth.util.jwt.JwtTokenUtils;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -23,6 +25,7 @@ import java.io.IOException;
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     private final JwtTokenUtils jwtTokenUtils;
+    private final AuthService authService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -42,10 +45,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             }
         }
         if(username!=null && SecurityContextHolder.getContext().getAuthentication()==null){
+            UserDetails userDetails = authService.loadUserByUsername(username);
             UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-                    username,
+                    userDetails,
                     null,
-                    jwtTokenUtils.getRoles(jwt).stream().map(SimpleGrantedAuthority::new).toList()
+                    userDetails.getAuthorities()
             );
             SecurityContextHolder.getContext().setAuthentication(token);
         }
