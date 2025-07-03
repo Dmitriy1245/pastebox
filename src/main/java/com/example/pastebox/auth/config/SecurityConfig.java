@@ -28,10 +28,28 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(request -> {
+                    var configuration = new org.springframework.web.cors.CorsConfiguration();
+                    // Указываем, с какого адреса разрешены запросы.
+                    // Это адрес нашего фронтенда, который запустил Vite.
+                    configuration.setAllowedOrigins(java.util.List.of("http://localhost:5173"));
+
+                    // Указываем, какие HTTP-методы разрешены.
+                    configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+                    // Указываем, какие заголовки разрешены.
+                    // "*" означает все, включая наш "Authorization" заголовок.
+                    configuration.setAllowedHeaders(java.util.List.of("*"));
+
+                    // Разрешаем отправку credentials (куки, заголовки авторизации).
+                    configuration.setAllowCredentials(true);
+
+                    return configuration;
+                }))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/auth", "/registration").permitAll()
+                        .requestMatchers("/page","/{url}").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))//т.к. в ресте нет сессий через кукки

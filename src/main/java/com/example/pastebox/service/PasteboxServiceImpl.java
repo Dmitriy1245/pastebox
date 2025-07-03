@@ -11,6 +11,7 @@ import com.example.pastebox.util.error.exception.NoSuchPasteboxException;
 import com.example.pastebox.util.mapper.EntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -59,17 +60,23 @@ public class PasteboxServiceImpl implements PasteboxService{
 
     @Override
     public List<PasteboxResponseDto> getAll(){
-        return pasteboxRepository.findAll().stream().map(entityMapper::mapPasteboxToPasteboxResponseDto).toList();
+        return pasteboxRepository.findAll().stream().filter(pastebox -> pastebox.getExpiresAt()==null || pastebox.getExpiresAt()
+                .isAfter(LocalDateTime.now()) ).map(entityMapper::mapPasteboxToPasteboxResponseDto).toList();
     }
 
     @Override
     public Page<PasteboxResponseDto> getAllPublic(Pageable pageable) {
-        return pasteboxRepository.findAll(pageable).map(entityMapper::mapPasteboxToPasteboxResponseDto);
+        return new PageImpl<>(pasteboxRepository.findAll(pageable).stream()
+                .filter(pastebox -> (pastebox.getExpiresAt()==null || pastebox.getExpiresAt()
+                        .isAfter(LocalDateTime.now()))&&pastebox.getPasteboxStatus().equals(PasteboxStatus.PUBLIC))
+                .map(entityMapper::mapPasteboxToPasteboxResponseDto).toList());
     }
 
     @Override
     public List<PasteboxResponseDto> getByUserUsername(String userUsername) {
-        return pasteboxRepository.getByUserUsername(userUsername).stream().map(entityMapper::mapPasteboxToPasteboxResponseDto).toList();
+        return pasteboxRepository.getByUserUsername(userUsername).stream()
+                .filter(pastebox -> pastebox.getExpiresAt()==null || pastebox.getExpiresAt()
+                        .isAfter(LocalDateTime.now())).map(entityMapper::mapPasteboxToPasteboxResponseDto).toList();
     }
 
     @Override
